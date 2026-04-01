@@ -60,8 +60,8 @@ if (contactForm && formStatus) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-      const response = await fetch(`${WORKER_URL}/api/records`, {
+      
+      const response = await fetch(`${WORKER_URL}/add_client`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
