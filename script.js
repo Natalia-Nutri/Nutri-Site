@@ -183,10 +183,11 @@ const formatDateTime = (value) => {
 
 const pad = (value) => String(value).padStart(2, "0");
 
-const toDateTimeLocalValue = (date) =>
-  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+const toDateValue = (date) =>
+  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 
-const getBookingField = () => bookingForm?.querySelector('input[name="date"]') || null;
+const getBookingDateField = () => bookingForm?.querySelector('input[name="bookingDate"]') || null;
+const getBookingTimeField = () => bookingForm?.querySelector('input[name="bookingTime"]') || null;
 
 const getEarliestBookingDate = () => {
   const now = new Date();
@@ -202,11 +203,17 @@ const getEarliestBookingDate = () => {
   return earliest;
 };
 
-const validateAppointmentDate = (rawValue) => {
-  if (!rawValue) {
+const normalizeAppointmentDate = (dateValue, timeValue) => {
+  if (!dateValue || !timeValue) return "";
+  return `${dateValue}T${timeValue}`;
+};
+
+const validateAppointmentDate = (dateValue, timeValue) => {
+  if (!dateValue || !timeValue) {
     return "Выберите дату и время приема.";
   }
 
+  const rawValue = normalizeAppointmentDate(dateValue, timeValue);
   const selected = new Date(rawValue);
   if (Number.isNaN(selected.getTime())) {
     return "Укажите корректную дату и время.";
@@ -248,11 +255,25 @@ const validateAppointmentDate = (rawValue) => {
 };
 
 const syncBookingConstraints = () => {
-  const field = getBookingField();
-  if (!field) return;
+  const dateField = getBookingDateField();
+  const timeField = getBookingTimeField();
+  if (!dateField || !timeField) return;
 
   const earliest = getEarliestBookingDate();
-  field.min = toDateTimeLocalValue(earliest);
+  dateField.min = toDateValue(earliest);
+  timeField.min = "10:00";
+  timeField.max = "18:00";
+  timeField.step = 1800;
+
+  const todayValue = toDateValue(new Date());
+  if (dateField.value === todayValue) {
+    const now = new Date();
+    const roundedMinutes = now.getMinutes() <= 30 ? 30 : 60;
+    const nextHour = roundedMinutes === 60 ? now.getHours() + 1 : now.getHours();
+    const nextMinute = roundedMinutes === 60 ? 0 : 30;
+    const nextTime = `${pad(Math.max(10, nextHour))}:${pad(nextMinute)}`;
+    timeField.min = nextTime > "10:00" ? nextTime : "10:00";
+  }
 };
 
 const appendNataliaReply = (user, text) => {
@@ -378,13 +399,17 @@ const renderPortal = () => {
       chatLog.innerHTML = '<p class="portal-empty">Здесь будет история сообщений после подтвержденной записи.</p>';
     } else {
       chatLog.innerHTML = user.chat
-        .map((message) => `
-          <article class="chat-message">
+        .map((message) => {
+          const isOwnMessage = message.author === user.name;
+          const messageClass = isOwnMessage ? "chat-message is-own" : "chat-message is-incoming";
+          return `
+          <article class="${messageClass}">
             <strong>${escapeHtml(message.author)}</strong>
             <div>${escapeHtml(message.text)}</div>
             <time datetime="${message.time}">${escapeHtml(formatDateTime(message.time))}</time>
           </article>
-        `)
+        `;
+        })
         .join("");
     }
   }
@@ -523,6 +548,7 @@ if (loginForm) {
 
 if (bookingForm) {
   syncBookingConstraints();
+  getBookingDateField()?.addEventListener("change", syncBookingConstraints);
 
   bookingForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -534,10 +560,12 @@ if (bookingForm) {
     }
 
     const formData = new FormData(bookingForm);
+    const bookingDate = String(formData.get("bookingDate") || "").trim();
+    const bookingTime = String(formData.get("bookingTime") || "").trim();
     const appointment = {
       id: crypto.randomUUID(),
       service: String(formData.get("service") || "").trim(),
-      date: String(formData.get("date") || "").trim(),
+      date: normalizeAppointmentDate(bookingDate, bookingTime),
       notes: String(formData.get("notes") || "").trim(),
       status: "scheduled",
     };
@@ -547,7 +575,7 @@ if (bookingForm) {
       return;
     }
 
-    const dateError = validateAppointmentDate(appointment.date);
+    const dateError = validateAppointmentDate(bookingDate, bookingTime);
     if (dateError) {
       setStatus(bookingStatus, dateError, "is-error");
       return;
