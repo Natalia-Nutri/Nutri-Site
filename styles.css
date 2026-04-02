@@ -91,6 +91,21 @@ textarea {
   line-height: 0.96;
 }
 
+.page-cabinet {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.page-cabinet .container {
+  width: min(calc(100% - 32px), 1240px);
+}
+
+.page-cabinet .section-head {
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -332,6 +347,7 @@ textarea {
 }
 
 .about-grid,
+.cabinet-grid,
 .contacts-grid {
   display: grid;
   gap: 24px;
@@ -416,6 +432,180 @@ textarea {
   gap: 10px;
 }
 
+.portal-auth,
+.portal-dashboard,
+.portal-panel {
+  border-radius: calc(var(--radius) + 4px);
+  padding: 24px;
+}
+
+.cabinet-grid {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.portal-dashboard {
+  display: grid;
+  gap: 24px;
+}
+
+.portal-auth {
+  max-width: 100px;
+  margin: 0 auto;
+}
+
+.portal-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.portal-tab {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  padding: 12px 16px;
+}
+
+.portal-tab.is-active {
+  background: rgba(220, 239, 216, 0.12);
+  color: var(--text);
+}
+
+.portal-form,
+.chat-form {
+  display: grid;
+  gap: 16px;
+}
+
+.portal-form label,
+.chat-form label {
+  display: grid;
+  gap: 10px;
+}
+
+.portal-form input,
+.portal-form textarea,
+.portal-form select,
+.chat-form textarea {
+  width: 100%;
+  border: 1px solid rgba(215, 233, 220, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 16px 18px;
+  outline: none;
+}
+
+.portal-form select,
+.portal-form select option {
+  background: #0d1b16;
+  color: var(--text);
+}
+
+.chat-form textarea {
+  min-height: 120px;
+  max-height: 120px;
+  resize: none;
+}
+
+.portal-chat {
+  min-height: 520px;
+}
+
+.chat-log {
+  min-height: 0;
+}
+
+.portal-topbar,
+.portal-chat-head,
+.appointment-card-head,
+.appointment-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.portal-user-email,
+.portal-chat-note,
+.appointment-meta,
+.portal-empty {
+  color: var(--muted);
+}
+
+.portal-panels {
+  display: grid;
+  gap: 20px;
+}
+
+.portal-panel {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.appointment-list,
+.chat-log {
+  display: grid;
+  gap: 14px;
+}
+
+.appointment-card,
+.chat-message {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(8, 19, 15, 0.72);
+}
+
+.chat-message {
+  align-self: start;
+}
+
+
+.appointment-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(220, 239, 216, 0.1);
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.appointment-status.is-cancelled {
+  background: rgba(255, 143, 143, 0.1);
+  color: #ffb8b8;
+}
+
+.appointment-card-actions .btn {
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.chat-message strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.chat-message time {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
 .contact-form span,
 .form-status,
 .form-note,
@@ -431,12 +621,25 @@ textarea {
   margin: -4px 0 0;
 }
 
+#booking-status {
+  margin-top: 8px;
+}
+
 .form-status.is-success {
   color: var(--accent-strong);
 }
 
 .form-status.is-error {
   color: #ffb3b3;
+}
+
+.portal-entry-note {
+  margin: -6px 0 0;
+  color: var(--muted);
+}
+
+.portal-entry-note a {
+  color: var(--accent-strong);
 }
 
 .contact-form input,
@@ -533,6 +736,7 @@ textarea {
   }
 
   .about-grid,
+  .cabinet-grid,
   .contacts-grid {
     grid-template-columns: 0.95fr 1.05fr;
   }
@@ -541,5 +745,20 @@ textarea {
   .reviews-grid,
   .process-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portal-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-cabinet .cabinet-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-cabinet .portal-auth,
+  .page-cabinet .portal-dashboard {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
   }
 }
